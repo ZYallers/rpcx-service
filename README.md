@@ -5,7 +5,6 @@
 
 ## 框架目录介绍
 - bin `脚本目录`
-- src `源码目录`
 - define `变量或结构体定义目录`
 - env `环境定义配置目录`
 - logic `逻辑层目录`
@@ -32,5 +31,3 @@
 - Redis命令文档：http://redis.cn/commands.html
 - GORM文档：https://gorm.io/zh_CN/docs
 - Docker文档：http://www.dockerinfo.net/document
-
-
