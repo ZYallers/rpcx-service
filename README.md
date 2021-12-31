@@ -5,25 +5,27 @@
 
 ## 框架目录介绍
 - bin `脚本目录`
-- log `日志目录`
 - src `源码目录`
-    - config `框架配置目录`
-    - libraries `资源库目录`
-    - logic `逻辑层目录`
-    - model `数据层目录`
-    - service `服务层目录`
-    - table `数据表层目录`
-    - go.mod `包版本定义`
-    - main.go `程序入口`
-    - service.json `服务配置文件`
+- define `变量或结构体定义目录`
+- env `环境定义配置目录`
+- logic `逻辑层目录`
+- model `数据层目录`
+- restful `服务路由注册目录`
+- service `服务层目录`
+- table `数据表层目录`
+- vendor `项目依赖目录`
+- go.mod `包版本定义`
+- main.go `程序入口`
+- service.json `服务配置文件`
 
 ## 服务如何跑起来？
-1. 执行 `./bin/produce.sh help` 命令，查看脚手架帮助文档，执行对应子命令，会有相应信息输出。
-    - 1.1. 执行 `./bin/produce.sh sync` 命令，同步服务vendor资源。
-    - 1.2. 执行 `./bin/produce.sh build local` 命令，可以编译当前代码生成服务程序。
-    - 1.3. 执行 `./bin/produce.sh reload` 命令，实现平滑重启服务。
-    - 1.4. 执行 `./bin/produce.sh status` 命令，可以查看服务状态。
-    - 1.5. 执行 `./bin/produce.sh quit` 命令，可以平滑停止当前服务。
+1. 执行 `./bin/bootstrap.sh` 命令，下载部署命令工具；
+2. 执行 `./bin/produce.sh help` 命令，查看部署命令工具帮助文档，执行对应子命令，会有相应信息输出：
+    - 2.1. 执行 `./bin/produce.sh sync` 命令，同步服务vendor资源
+    - 2.2. 执行 `./bin/produce.sh build local` 命令，可以编译当前代码生成服务程序
+    - 2.3. 执行 `./bin/produce.sh reload` 命令，实现平滑重启服务
+    - 2.4. 执行 `./bin/produce.sh status` 命令，可以查看服务状态
+    - 2.5. 执行 `./bin/produce.sh quit` 命令，可以平滑停止当前服务
 
 ## 参考文献
 - RPCX文档：https://doc.rpcx.io
