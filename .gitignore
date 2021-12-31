@@ -18,7 +18,5 @@ vendor/
 .idea
 .vscode
 go.sum
-log/*
-!log/README.md
 bin/*
 !bin/produce.sh

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-jsonFile="$(pwd)/src/service.json"
+jsonFile="$(pwd)/service.json"
 serviceName=""
 serviceAddr=""
 logDir=""
@@ -32,14 +32,14 @@ getJsonValue(){
 }
 
 helpFun(){
-    echoFun "操作:" title
-    echoFun "    status                                  查看服务状态" tip
-    echoFun "    sync                                    同步服务vendor资源" tip
-    echoFun "    build                                   编译生成服务程序" tip
-    echoFun "    reload                                  平滑重启服务" tip
-    echoFun "    quit                                    停止服务" tip
-    echoFun "    help                                    查看命令的帮助信息" tip
-    echoFun "有关某个操作的详细信息，请使用 help 命令查看" tip
+    echoFun "Operation:" title
+    echoFun "    status                                  View service status" tip
+    echoFun "    sync                                    Synchronization service vendor resources" tip
+    echoFun "    build                                   Compile and generate service program" tip
+    echoFun "    reload                                  Smooth restart service" tip
+    echoFun "    quit                                    Stop service" tip
+    echoFun "    help                                    View help information for the help command" tip
+    echoFun "For more information about an action, use the help command to view it" tip
 }
 
 initFun(){
@@ -93,13 +93,12 @@ statusFun(){
 }
 
 syncFun(){
-    cd ./src
     echoFun "go mod vendor:" title
     if [[ ! -f "./go.mod" ]];then
-        go mod init src
+        echoFun "go.mod is not exist" err
+        exit 1
     fi
     go mod tidy
-    rm -rf ./vendor
     go mod vendor
     echoFun "go mod vendor finished" ok
 }
@@ -116,29 +115,25 @@ buildFun(){
     if [[ "$branch" == "local" ]];then
         echoFun "ignore git pull, direct build by local" tip
     else
-        git remote update origin --prune # 更新远程分支列表
-        git checkout ${branch} # 切换分支
-        git pull # 拉取最新版本
+        git remote update origin --prune # Update remote branch list
+        git checkout ${branch} # Switch branch
+        git pull # Pull the latest version
         echoFun "git pull [$branch] finish" ok
     fi
 
     echoFun "build runner:" title
-    cd ./src
-
-    tmpName="${serviceName}_tmp_$(date +'%Y-%m-%d-%H-%M-%S')"
-
+    tmpName="${serviceName}_$(date +'%Y%m%d%H%M%S')"
     if [[ "$env" == "dev" ]];then
         echoFun 'build in develop environment' tip
-        CGO_ENABLED=0 go build -v -installsuffix cgo -ldflags '-w' -i -o ../bin/${tmpName} -tags=jsoniter ./main.go
+        CGO_ENABLED=0 go build -v -installsuffix cgo -ldflags '-w' -i -o ./bin/${tmpName} -tags=jsoniter ./main.go
     else
-        ### build编译参数参考资料：
-        # 无依赖编译：https://blog.csdn.net/weixin_42506905/article/details/93135684
-        # build参数详解：https://blog.csdn.net/zl1zl2zl3/article/details/83374131
-        # ldflags参数：https://blog.csdn.net/javaxflinux/article/details/89177863
-        CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags '-w' -i -o ../bin/${tmpName} -tags=jsoniter ./main.go
+        # Build compilation parameter reference:
+        # Dependency free compilation：https://blog.csdn.net/weixin_42506905/article/details/93135684
+        # Detailed explanation of build parameters：https://blog.csdn.net/zl1zl2zl3/article/details/83374131
+        # Ldflags parameter：https://blog.csdn.net/javaxflinux/article/details/89177863
+        CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags '-w' -i -o ./bin/${tmpName} -tags=jsoniter ./main.go
     fi
 
-    cd ../
     if [[ ! -f "./bin/${tmpName}" ]];then
         echoFun "build tmp runner ($(pwd)/bin/${tmpName}) failed" err
         exit 1
@@ -188,7 +183,6 @@ reloadFun(){
         exit 1
     fi
 
-    # 日志目录
     if [[ ! -d "$logDir" ]];then
         mkdir -p ${logDir}
     fi
@@ -197,28 +191,25 @@ reloadFun(){
         exit 1
     fi
 
-    # 日志文件
     logfile=${logDir}/${serviceName}.log
     if [[ ! -f "$logfile" ]];then
         touch ${logfile}
     fi
     echoFun "logfile: $logfile" tip
 
-    # 执行权限
     if [[ ! -x "./bin/$serviceName" ]];then
         chmod u+x ./bin/${serviceName}
     fi
 
-    # 终止程序
     quitFun
 
-    # 防止Jenkins默认会在Build结束后Kill掉所有的衍生进程
+    # Prevent Jenkins from killing all derived processes after the end of build by default
     export BUILD_ID=dontKillMe
 
     nohup ./bin/${serviceName} >> ${logfile} 2>&1 &
     echoFun "service $serviceName($serviceAddr) is reloaded, pid: `echo $!`" ok
 
-    # 检查健康接口是否访问正常
+    # Check whether the health interface is accessed normally
     sleep 3s
     id=$(date +%Y%m%d%H%M%S)
     post="{\"jsonrpc\":\"2.0\",\"method\":\"$serviceName.health\",\"params\":{},\"id\":$id}"
